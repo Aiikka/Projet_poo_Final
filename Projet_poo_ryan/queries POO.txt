@@ -1,0 +1,92 @@
+QUERIES: 
+1- calculer panier moyen (après remise):
+USE DB_POO_04;
+
+SELECT AVG(TotalAprèsRemise) AS PanierMoyen
+FROM (
+    SELECT 
+        Id_Commande,
+        SUM(Prix_Article * CAST(quantite_article AS INT) * (1 - Remise_comerciale)) AS TotalAprèsRemise
+    FROM 
+        TB_Contenir
+    GROUP BY 
+        Id_Commande
+) AS TotalsParCommande;
+
+ 
+2- chiffre d'affaire pour un mois part :
+SELECT
+    SUM(C.Prix_Article * C.quantite_article * (1 - C.Remise_comerciale)) AS ChiffreAffaireMois
+FROM
+    TB_Contenir C
+INNER JOIN TB_Commande Cmd ON
+    C.Id_Commande = Cmd.Id_Commande
+WHERE
+    MONTH(Cmd.Date_emi) = 03 -- Mars
+    AND YEAR(Cmd.Date_emi) = 2023; -- Année 2023
+
+4- montant total des achats 
+SELECT 
+    TB_Client.Id_Client,
+    TB_Client.Nom,
+    TB_Client.Prenom,
+    SUM(TB_Contenir.Prix_Article * TB_Contenir.quantite_article * (1 - TB_Contenir.Remise_comerciale)) AS MontantTotalAchats
+FROM 
+    TB_Client
+JOIN 
+    TB_Commande ON TB_Client.Id_Client = TB_Commande.Id_Client
+JOIN 
+    TB_Contenir ON TB_Commande.Id_Commande = TB_Contenir.Id_Commande
+GROUP BY 
+    TB_Client.Id_Client, TB_Client.Nom, TB_Client.Prenom;
+
+5- 10 articles les plus vendus 
+
+USE DB_POO_04
+
+SELECT TOP 10 
+    Id_Article, 
+    SUM(CAST(quantite_article AS INT)) as QuantiteTotaleVendue
+FROM 
+    TB_Contenir
+GROUP BY 
+    Id_Article
+ORDER BY 
+    QuantiteTotaleVendue DESC;
+
+6-10 articles moin vendus :
+
+ USE DB_POO_04
+
+SELECT TOP 10 
+    Id_Article, 
+    SUM(CAST(quantite_article AS INT)) as QuantiteTotaleVendue
+FROM 
+    TB_Contenir
+GROUP BY 
+    Id_Article
+ORDER BY 
+    QuantiteTotaleVendue ASC;
+
+7-valeur commerciale du stock :
+
+USE DB_POO_04
+
+SELECT 
+    SUM(TB_Article.Reaprovisionnement_Articile *	TB_Contenir.Prix_Article) AS ValeurCommercialeDuStock
+FROM 
+    TB_Article
+JOIN 
+    TB_Contenir ON TB_Article.Id_Article = TB_Contenir.Id_Article;
+
+8- valeur achat du stock :
+
+USE DB_POO_04
+SELECT SUM(Reaprovisionnement_Articile * Cout_Achat) AS ValeurAchatDuStock
+FROM TB_Article;
+
+
+9- reaprovisionement :
+USE DB_POO_04
+SELECT SUM(Reaprovisionnement_Articile * Cout_Achat) AS ValeurAchatDuStock
+FROM TB_Article;
